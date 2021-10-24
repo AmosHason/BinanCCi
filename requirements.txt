@@ -1,0 +1,8 @@
+certifi==2020.12.5
+chardet==4.0.0
+idna==2.10
+pycoingecko==2.0.0
+requests==2.25.1
+retrying==1.3.3
+six==1.15.0
+urllib3==1.26.4
