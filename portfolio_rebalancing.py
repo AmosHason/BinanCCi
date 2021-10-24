@@ -2,7 +2,7 @@ import math
 import time
 
 from binance_api import create_order, get_balances, get_exchange_stepsize, get_price
-from settings import BINANCE_ORDER_MIN_USDT, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
+from settings import BINANCE_ORDER_MIN_USD, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
 
 
 def rebalance(required_weights):
@@ -16,10 +16,10 @@ def rebalance(required_weights):
 
         quantity = round(change[2], int(-math.log10(get_exchange_stepsize(symbol))))
 
-        if change[1] < -BINANCE_ORDER_MIN_USDT:
+        if change[1] < -BINANCE_ORDER_MIN_USD:
             create_order(symbol, 'sell', -quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
-        elif change[1] > BINANCE_ORDER_MIN_USDT:
+        elif change[1] > BINANCE_ORDER_MIN_USD:
             create_order(symbol, 'buy', quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
 
