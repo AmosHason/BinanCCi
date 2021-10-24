@@ -7,5 +7,3 @@ CONSTITUENTS_FILE = 'coin_ids.json'
 BINANCE_ORDER_MIN_USDT = 10
 WAIT_SECONDS_BETWEEN_ORDERS = 2
 API_BASE = 'https://api.binance.com'
-API_KEY = ''
-SECRET_KEY = ''

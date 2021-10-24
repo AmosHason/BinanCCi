@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from settings import API_KEY, SECRET_KEY
+from credentials import API_KEY, SECRET_KEY
 
 
 def send_signed_request(http_method, url, payload=None):
