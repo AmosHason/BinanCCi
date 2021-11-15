@@ -2,7 +2,7 @@ import json
 from math import exp, log, sqrt
 
 from market_data import get_market_data
-from settings import CONSTITUENTS_AMOUNT, CONSTITUENTS_FILE, FIAT_RATIO, PAIRING, RESELECT_CONSTITUENTS
+from settings import CONSTITUENTS_AMOUNT, CONSTITUENTS_FILE, DEFAULT_RATIO, PAIRING, RESELECT_CONSTITUENTS
 
 
 def calculate_weights():
@@ -23,7 +23,7 @@ def calculate_weights():
         json.dump(list(adjusted_market_caps.keys()), f)
 
     weights = _constituents_weights(adjusted_market_caps)
-    ratio = FIAT_RATIO if not PAIRING in [market_data[c]['symbol'] for c in weights] else 0
+    ratio = DEFAULT_RATIO if not PAIRING in [market_data[c]['symbol'] for c in weights] else 0
 
     return {**{PAIRING: ratio}, **{market_data[c]['symbol']: (1 - ratio) * w for (c, w) in weights.items()}}
 
