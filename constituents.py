@@ -22,7 +22,10 @@ def calculate_weights():
     with open(CONSTITUENTS_FILE, 'w') as f:
         json.dump(list(adjusted_market_caps.keys()), f)
 
-    return {**{PAIRING: FIAT_RATIO}, **{market_data[c]['symbol']: (1 - FIAT_RATIO) * w for (c, w) in _constituents_weights(adjusted_market_caps).items()}}
+    weights = _constituents_weights(adjusted_market_caps)
+    ratio = FIAT_RATIO if not PAIRING in [market_data[c]['symbol'] for c in weights] else 0
+
+    return {**{PAIRING: ratio}, **{market_data[c]['symbol']: (1 - ratio) * w for (c, w) in weights.items()}}
 
 
 def _ewma(series, half_life=3):
