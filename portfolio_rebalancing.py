@@ -5,7 +5,7 @@ from binance_api import create_order, get_balances, get_exchange_stepsize, get_p
 from settings import BINANCE_ORDER_MIN, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
 
 
-def rebalance(required_weights):
+def rebalance(required_weights, balances):
     required_changes = _get_required_changes_in_portfolio(required_weights)
 
     for change in required_changes:
@@ -14,7 +14,11 @@ def rebalance(required_weights):
         if symbol == f'{PAIRING}{PAIRING}':
             continue
 
-        quantity = round(change[2], int(-math.log10(get_exchange_stepsize(symbol))))
+        stepsize = get_exchange_stepsize(symbol)
+        quantity = round(change[2] / stepsize) * stepsize
+
+        if -quantity > balances[change[0]]:
+            quantity = math.floor(change[2] / stepsize) * stepsize
 
         if change[1] < -BINANCE_ORDER_MIN:
             create_order(symbol, 'sell', -quantity)
