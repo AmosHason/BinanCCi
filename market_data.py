@@ -48,7 +48,7 @@ def _symbol_on_binance(coin_id):
     tickers = cg.get_coin_ticker_by_id(coin_id, exchange_ids='binance', order='volume_desc')
     symbols = set([t['base'] for t in tickers['tickers'] if t['target'] == PAIRING])
 
-    if symbols:
+    if len(symbols) > 0:
         return PAIRING if len(symbols) > 1 else symbols.pop()
     else:
         return None

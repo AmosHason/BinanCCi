@@ -23,9 +23,9 @@ def calculate_weights():
         json.dump(list(adjusted_market_caps.keys()), f)
 
     weights = _constituents_weights(adjusted_market_caps)
-    ratio = DEFAULT_RATIO if not PAIRING in [market_data[c]['symbol'] for c in weights] else 0
+    default_ratio = DEFAULT_RATIO if PAIRING not in [market_data[c]['symbol'] for c in weights] else 0
 
-    return {**{PAIRING: ratio}, **{market_data[c]['symbol']: (1 - ratio) * w for (c, w) in weights.items()}}
+    return {**{PAIRING: default_ratio}, **{market_data[c]['symbol']: (1 - default_ratio) * w for (c, w) in weights.items()}}
 
 
 def _ewma(series, half_life=3):
