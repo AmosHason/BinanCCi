@@ -1,6 +1,6 @@
 # BinanCCi
 
-#### Rebalance your Binance portfolio according to the [CCi30](https://cci30.com/) index.
+#### Rebalance your Binance portfolio according to the [CCi30Ⓡ](https://cci30.com/) index.
 
 So you want to invest in the cryptocurrency market, but, like me, you are a passive investor who only looks for a **sufficient exposure**. Surely you can try the other index-tracking solutions, but why pay high fees when you can simply run this script once a month?
 
@@ -27,10 +27,15 @@ So you want to invest in the cryptocurrency market, but, like me, you are a pass
 
 ## Notes
 
-1. The constituents are selected according to the CCi30 selection algorithm, with a few caveats:
+1. The constituents are selected according to the CCi30Ⓡ selection algorithm, with a few caveats:
    1. You may adjust the number of constituents (not necessarily 30).
    2. The algorithm is run on market data from the top 250 cryptocurrencies by current market cap.
    3. Only cryptocurrencies which are traded against the pairing on Binance may be selected.
    4. In addition to stablecoins, the algorithm filters out cryptocurrencies that belong to either of the Asset-backed, Wrapped, Seigniorage, Staking, Synths, Rebase, Index, Aave, Tokenized, Compound and Mirrored categories, as these are mostly kinds of derivatives.
-2. The official CCi30 index constituents are **reselected on the first day of each quarter** and **reweighted on the first day of each month**. You may get different results depending on the timings of your runs, but overall the concept is the same.
+2. The official CCi30Ⓡ index constituents are **reselected on the first day of each quarter** and **reweighted on the first day of each month**. You may get different results depending on the timings of your runs, but overall the concept is the same.
 3. Cryptocurrencies in the existing portfolio that can't be traded against the pairing are ignored.
+
+## Disclaimers
+
+* CCi30Ⓡ is a registered trademark of Igor Rivin et al.
+* This software does not constitute investment advice, financial advice, trading advice or any other sort of advice, and you should not treat it as such. The authors do not recommend that any cryptocurrency should be bought, sold or held by you. Do conduct your own due diligence and consult your financial advisor before making any investment decisions. You are the sole responsible for the outcomes of using this software.
