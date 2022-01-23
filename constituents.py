@@ -2,7 +2,7 @@ import json
 from math import exp, log, sqrt
 
 from market_data import get_market_data
-from settings import CONSTITUENTS_AMOUNT, CONSTITUENTS_FILE, FIAT_RATIO, PAIRING, RESELECT_CONSTITUENTS
+from settings import CONSTITUENTS_AMOUNT, CONSTITUENTS_FILE, DEFAULT_RATIO, PAIRING, RESELECT_CONSTITUENTS
 
 
 def calculate_weights():
@@ -22,7 +22,10 @@ def calculate_weights():
     with open(CONSTITUENTS_FILE, 'w') as f:
         json.dump(list(adjusted_market_caps.keys()), f)
 
-    return {**{PAIRING: FIAT_RATIO}, **{market_data[c]['symbol']: (1 - FIAT_RATIO) * w for (c, w) in _constituents_weights(adjusted_market_caps).items()}}
+    weights = _constituents_weights(adjusted_market_caps)
+    default_ratio = DEFAULT_RATIO if PAIRING not in [market_data[c]['symbol'] for c in weights] else 0
+
+    return {**{PAIRING: default_ratio}, **{market_data[c]['symbol']: (1 - default_ratio) * w for (c, w) in weights.items()}}
 
 
 def _ewma(series, half_life=3):

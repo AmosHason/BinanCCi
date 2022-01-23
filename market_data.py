@@ -46,9 +46,12 @@ def _get_coins_metadata(coin_ids):
 @retry
 def _symbol_on_binance(coin_id):
     tickers = cg.get_coin_ticker_by_id(coin_id, exchange_ids='binance', order='volume_desc')
-    symbols = [t['base'] for t in tickers['tickers'] if t['target'] == PAIRING]
+    symbols = set([t['base'] for t in tickers['tickers'] if t['target'] == PAIRING])
 
-    return symbols[0] if symbols else None
+    if len(symbols) > 0:
+        return PAIRING if len(symbols) > 1 else symbols.pop()
+    else:
+        return None
 
 
 def _is_coin_blacklisted(coin_metadata):

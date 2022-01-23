@@ -21,7 +21,10 @@ def get_exchange_stepsize(symbol):
 
 
 def get_price(symbol):
-    return float(requests.get(f'{API_BASE}/api/v3/ticker/price?symbol={symbol}{PAIRING}').json()['price'])
+    try:
+        return float(requests.get(f'{API_BASE}/api/v3/ticker/price?symbol={symbol}{PAIRING}').json()['price'])
+    except KeyError:
+        return None
 
 
 def create_order(symbol, side, quantity):

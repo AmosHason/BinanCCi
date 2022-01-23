@@ -2,10 +2,10 @@ import math
 import time
 
 from binance_api import create_order, get_balances, get_exchange_stepsize, get_price
-from settings import BINANCE_ORDER_MIN_USD, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
+from settings import BINANCE_ORDER_MIN, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
 
 
-def rebalance(required_weights):
+def rebalance(balances, required_weights):
     required_changes = _get_required_changes_in_portfolio(required_weights)
 
     for change in required_changes:
@@ -14,12 +14,15 @@ def rebalance(required_weights):
         if symbol == f'{PAIRING}{PAIRING}':
             continue
 
-        quantity = round(change[2], int(-math.log10(get_exchange_stepsize(symbol))))
+        stepsize = get_exchange_stepsize(symbol)
+        quantity = round(change[2] / stepsize) * stepsize
+        if quantity < 0 and -quantity > balances[change[0]]:
+            quantity = math.ceil(change[2] / stepsize) * stepsize
 
-        if change[1] < -BINANCE_ORDER_MIN_USD:
+        if change[1] < -BINANCE_ORDER_MIN:
             create_order(symbol, 'sell', -quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
-        elif change[1] > BINANCE_ORDER_MIN_USD:
+        elif change[1] > BINANCE_ORDER_MIN:
             create_order(symbol, 'buy', quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
 
@@ -36,15 +39,16 @@ def _get_required_changes_in_portfolio(required_weights):
             price = 1
         else:
             price = get_price(symbol)
+
         portfolio[symbol]['price'] = price
-        portfolio[symbol]['value'] = portfolio[symbol]['balance'] * price
+        portfolio[symbol]['value'] = portfolio[symbol]['balance'] * price if price is not None else None
 
     total_value = sum([portfolio[s]['value'] for s in portfolio])
 
     for symbol in portfolio:
         if symbol not in required_weights:
-            portfolio[symbol]['required_change'] = -portfolio[symbol]['balance']
-            portfolio[symbol]['required_change_in_value'] = portfolio[symbol]['required_change'] * portfolio[symbol]['price']
+            portfolio[symbol]['required_change'] = -portfolio[symbol]['balance'] if portfolio[symbol]['price'] is not None else 0
+            portfolio[symbol]['required_change_in_value'] = portfolio[symbol]['required_change'] * portfolio[symbol]['price'] if portfolio[symbol]['price'] is not None else 0
         else:
             portfolio[symbol]['required_change_in_value'] = required_weights[symbol] * total_value - portfolio[symbol]['value']
             portfolio[symbol]['required_change'] = portfolio[symbol]['required_change_in_value'] / portfolio[symbol]['price']
@@ -53,9 +57,9 @@ def _get_required_changes_in_portfolio(required_weights):
 
     def f(x):
         if x < 0:
-            return -x  # First of all, sell assets by descending order of action value.
+            return -x  # First sell assets by descending order of action value.
         if x > 0:
-            return -1/x  # Then, buy assets by descending order of action value.
+            return -1/x  # Then buy assets by descending order of action value.
 
     required_changes.sort(key=lambda x: f(x[1]), reverse=True)
 
