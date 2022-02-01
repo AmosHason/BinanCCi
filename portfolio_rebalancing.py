@@ -43,7 +43,7 @@ def _get_required_changes_in_portfolio(required_weights):
         portfolio[symbol]['price'] = price
         portfolio[symbol]['value'] = portfolio[symbol]['balance'] * price if price is not None else None
 
-    total_value = sum([portfolio[s]['value'] for s in portfolio])
+    total_value = sum([portfolio[s]['value'] for s in portfolio if portfolio[s]['value'] is not None])
 
     for symbol in portfolio:
         if symbol not in required_weights:
