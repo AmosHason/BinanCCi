@@ -8,22 +8,24 @@ from settings import BINANCE_ORDER_MIN, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
 def rebalance(balances, required_weights):
     required_changes = _get_required_changes_in_portfolio(required_weights)
 
-    for change in required_changes:
-        symbol = f'{change[0]}{PAIRING}'
+    for symbol, value, change in required_changes:
+        pair = f'{symbol}{PAIRING}'
 
-        if symbol == f'{PAIRING}{PAIRING}':
+        if pair == f'{PAIRING}{PAIRING}':
             continue
 
-        stepsize = get_exchange_stepsize(symbol)
-        quantity = round(change[2] / stepsize) * stepsize
-        if quantity < 0 and -quantity > balances[change[0]]:
-            quantity = math.ceil(change[2] / stepsize) * stepsize
+        stepsize = get_exchange_stepsize(pair)
+        quantity = round(change, int(-math.log10(stepsize)))
+        if symbol in balances and quantity < 0 and -quantity > balances[symbol]:
+            quantity += stepsize
 
-        if change[1] < -BINANCE_ORDER_MIN:
-            create_order(symbol, 'sell', -quantity)
+        value *= quantity / change
+
+        if value < -BINANCE_ORDER_MIN:
+            create_order(pair, 'sell', -quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
-        elif change[1] > BINANCE_ORDER_MIN:
-            create_order(symbol, 'buy', quantity)
+        elif value > BINANCE_ORDER_MIN:
+            create_order(pair, 'buy', quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
 
 
