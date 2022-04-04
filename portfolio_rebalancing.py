@@ -8,7 +8,7 @@ from settings import BINANCE_ORDER_MIN, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
 def rebalance(balances, required_weights):
     required_changes = _get_required_changes_in_portfolio(required_weights)
 
-    for symbol, value, change in required_changes:
+    for symbol, change_in_value, change, price in required_changes:
         pair = f'{symbol}{PAIRING}'
 
         if pair == f'{PAIRING}{PAIRING}':
@@ -16,17 +16,20 @@ def rebalance(balances, required_weights):
 
         stepsize = get_exchange_stepsize(pair)
         quantity = round(change, int(-math.log10(stepsize)))
-        if symbol in balances and quantity < 0 and -quantity > balances[symbol]:
+        if quantity < 0 and -quantity > balances[symbol]:
             quantity += stepsize
+        change_in_value = quantity * price
 
-        value *= quantity / change
-
-        if value < -BINANCE_ORDER_MIN:
+        if change_in_value < -BINANCE_ORDER_MIN:
+            print(f'Selling {pair}. Change: {quantity}. Estimated change in value: {change_in_value}.')
             create_order(pair, 'sell', -quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
-        elif value > BINANCE_ORDER_MIN:
+        elif change_in_value > BINANCE_ORDER_MIN:
+            print(f'Buying {pair}. Change: {quantity}. Estimated change in value: {change_in_value}.')
             create_order(pair, 'buy', quantity)
             time.sleep(WAIT_SECONDS_BETWEEN_ORDERS)
+        else:
+            print(f'Could not create an order for {pair}: required change in value ({change_in_value}) is too small in magnitude.')
 
 
 def _get_required_changes_in_portfolio(required_weights):
@@ -55,7 +58,8 @@ def _get_required_changes_in_portfolio(required_weights):
             portfolio[symbol]['required_change_in_value'] = required_weights[symbol] * total_value - portfolio[symbol]['value']
             portfolio[symbol]['required_change'] = portfolio[symbol]['required_change_in_value'] / portfolio[symbol]['price']
 
-    required_changes = [(s, portfolio[s]['required_change_in_value'], portfolio[s]['required_change']) for s in portfolio if portfolio[s]['required_change'] != 0]
+    required_changes = [(s, portfolio[s]['required_change_in_value'], portfolio[s]['required_change'], portfolio[s]['price'])
+                        for s in portfolio if portfolio[s]['required_change'] != 0]
 
     def f(x):
         if x < 0:
