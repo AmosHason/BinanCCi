@@ -60,6 +60,7 @@ def _get_required_changes_in_portfolio(required_weights):
 
     required_changes = [(s, portfolio[s]['required_change_in_value'], portfolio[s]['required_change'], portfolio[s]['price'])
                         for s in portfolio if portfolio[s]['required_change'] != 0]
+    required_changes = [x for x in required_changes if x[1] != 0]
 
     def f(x):
         if x < 0:
