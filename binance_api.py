@@ -17,7 +17,9 @@ def get_balances():
 
 
 def get_exchange_stepsize(symbol):
-    return float(requests.get(f'{API_BASE}/api/v3/exchangeInfo?symbol={symbol}').json()['symbols'][0]['filters'][2]['stepSize'])
+    filters = requests.get(f'{API_BASE}/api/v3/exchangeInfo?symbol={symbol}').json()['symbols'][0]['filters']
+
+    return float([f for f in filters if f['filterType'] == 'LOT_SIZE'][0]['stepSize'])
 
 
 def get_price(symbol):
