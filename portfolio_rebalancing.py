@@ -2,7 +2,7 @@ import math
 import time
 
 from binance_api import create_order, get_balances, get_exchange_stepsize, get_price
-from settings import BINANCE_ORDER_MIN, PAIRING, WAIT_SECONDS_BETWEEN_ORDERS
+from settings import BINANCE_ORDER_MIN, PAIRING, TOKENS_TO_IGNORE, WAIT_SECONDS_BETWEEN_ORDERS
 
 
 def rebalance(balances, required_weights):
@@ -33,7 +33,7 @@ def rebalance(balances, required_weights):
 
 
 def _get_required_changes_in_portfolio(required_weights):
-    portfolio = {s: {'balance': b} for (s, b) in get_balances().items()}
+    portfolio = {s: {'balance': b} for (s, b) in get_balances().items() if s not in TOKENS_TO_IGNORE}
 
     for symbol in required_weights:
         if symbol not in portfolio:

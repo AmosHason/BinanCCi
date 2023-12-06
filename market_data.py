@@ -3,7 +3,7 @@ from time import sleep
 from pycoingecko import CoinGeckoAPI
 from retrying import retry
 
-from settings import COINGECKO_REQUEST_INTERVAL, PAIRING
+from settings import COINGECKO_REQUEST_INTERVAL, PAIRING, TOKENS_TO_IGNORE
 
 cg = CoinGeckoAPI()
 retry = retry(wait_fixed=3000, stop_max_delay=120000)
@@ -38,7 +38,7 @@ def _get_coins_metadata(coin_ids):
                 'blacklisted': _is_coin_blacklisted(coin_metadata)
             }
         sleep(COINGECKO_REQUEST_INTERVAL)
-    coins_metadata = {c: m for (c, m) in coins_metadata.items() if m['symbol'] is not None and not m['blacklisted']}
+    coins_metadata = {c: m for (c, m) in coins_metadata.items() if m['symbol'] is not None and m['symbol'] not in TOKENS_TO_IGNORE and not m['blacklisted']}
 
     return coins_metadata
 
@@ -55,7 +55,7 @@ def _symbol_on_binance(coin_id):
 
 
 def _is_coin_blacklisted(coin_metadata):
-    unwanted = ['Stablecoin', 'Asset-backed', 'Wrapped', 'Seigniorage', 'Staking', 'Synths', 'Rebase', 'Index', 'Aave', 'Tokenized', 'Compound', 'Mirrored']
+    unwanted = ['Stablecoin', 'Asset-backed', 'Wrapped', 'Seigniorage', 'Staking', 'Synths', 'Rebase', 'Index', 'Aave', 'Tokenized', 'Compound', 'Mirrored', 'Meme']
 
     return any([any([x in c for x in unwanted]) for c in coin_metadata['categories'] if c is not None])
 
